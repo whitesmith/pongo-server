@@ -54,7 +54,22 @@ app.post("/create", function(req, res){
 });
 
 app.post("/join/:id", function(req, res){
-
+  var data = {name: req.body.name, points:0, position: {lat: req.body.name, lon: req.body.name}}
+  Game.findOne({id:req.params.id}, null, {}, function(err, game) {
+    if (err) {
+      console.log(err);
+    } else {
+      game.players.push(data)
+      game.save(function (err) {
+        if (err) {
+          console.log(err);
+        } else {
+          //todo
+          res.send("TOKEN");
+        }
+      });
+    }
+  })
 });
 
 
