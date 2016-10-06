@@ -1,0 +1,30 @@
+{
+  "name": "pongo-server",
+  "version": "0.0.1",
+  "description": "pixels-camp",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/whitesmith/pongo-server.git"
+  },
+  "keywords": [
+    "game"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/whitesmith/pongo-server/issues"
+  },
+  "homepage": "https://github.com/whitesmith/pongo-server#readme",
+  "dependencies": {
+    "body-parser": "~1.13.2",
+    "jade": "~1.11.0",
+    "ably": "0.8.37",
+    "express": "~4.14.0",
+    "mongoose": "^4.6.3"
+  }
+}
