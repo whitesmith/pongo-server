@@ -1,0 +1,11 @@
+version: "2"
+
+services:
+  mongo:
+    image: mongo:3.3
+    volumes:
+      - /home/pongo/data:/data/db
+  node:
+    image: pmdcosta/pongo:latest
+    ports:
+      - "80:8080"
