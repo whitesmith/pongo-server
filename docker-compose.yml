@@ -5,15 +5,7 @@ services:
     image: mongo:3.3
     volumes:
       - /home/pongo/data:/data/db
-    networks:
-      - pongo
   node:
     image: pmdcosta/pongo:latest
     ports:
       - "80:8080"
-    networks:
-      - pongo
-
-networks:
-  pongo:
-    driver: overlay
