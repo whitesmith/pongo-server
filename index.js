@@ -1,8 +1,10 @@
+require('dotenv').load();
 var express = require('express');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var path = require('path');
 var http = require('http');
+var realtime = require('ably').Realtime;
 
 var app = express();
 var port = process.env.PORT || '3000';
@@ -21,7 +23,6 @@ var GameSchema = new mongoose.Schema({
   closed_at: {type: Date},
   closed: {type: Boolean, default:false},
   name: {type: String},
-  ably_key: {type: String},
   players: [{name: String, points: Number, position: {lat: Number, lon: Number}}]
 });
 
@@ -31,7 +32,7 @@ mongoose.connect(process.env.MONGO_URI || "mongodb://localhost/pongo");
 
 // Controllers
 app.get('/', function (req, res) {
-  Game.find({closed:false}, null, {sort: 'date'}, function(err, games) {
+  Game.find({closed:false}, null, {}, function(err, games) {
     if (err) {
       console.log(err);
     } else {
@@ -58,6 +59,16 @@ app.post("/join/:id", function(req, res){
 
 
 //Ably Stuff
+var client = new realtime(process.env.ABLY_KEY)
+
+client.connection.on('connected', function() {
+  console.log("Connected to ably");
+});
+
+client.connection.on('failed', function() {
+  console.log("Failed to connect to ably");
+});
+
 
 
 // Start Server
