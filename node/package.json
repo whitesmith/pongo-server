@@ -1,0 +1,12 @@
+{
+  "name": "pong_city",
+  "version": "1.0.0",
+  "description": "Play Pong anywhere... in the REAL WORLD !!",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.13.3"
+  }
+}
