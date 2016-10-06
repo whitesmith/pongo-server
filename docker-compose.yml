@@ -7,5 +7,8 @@ services:
       - /home/pongo/data:/data/db
   node:
     image: pmdcosta/pongo:latest
+    restart: always
+    environment:
+      - 
     ports:
       - "80:8080"
