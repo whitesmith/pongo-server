@@ -16,11 +16,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // Models
 // Set Database and Schemas
 var GameSchema = new mongoose.Schema({
-  session_id: {type: String},
   created_at: {type: Date, default: Date.now},
   started_at: {type: Date},
   closed_at: {type: Date},
-
+  closed: {type: Boolean, default:false},
   name: {type: String},
   ably_key: {type: String},
   players: [{name: String, points: Number, position: {lat: Number, lon: Number}}]
@@ -32,8 +31,33 @@ mongoose.connect(process.env.MONGO_URI || "mongodb://localhost/pongo");
 
 // Controllers
 app.get('/', function (req, res) {
-  res.send('Hello World!');
+  Game.find({closed:false}, null, {sort: 'date'}, function(err, games) {
+    if (err) {
+      console.log(err);
+    } else {
+      res.send(games);
+    }
+  });
 });
+
+app.post("/create", function(req, res){
+  var data = {name: req.body.name}
+  var newgame = new Game(data);
+  newgame.save(function (err) {
+    if (err) {
+      console.log(err);
+    } else {
+      res.send(newgame);
+    }
+  });
+});
+
+app.post("/join/:id", function(req, res){
+
+});
+
+
+//Ably Stuff
 
 
 // Start Server
