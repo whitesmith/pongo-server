@@ -138,7 +138,6 @@ client_realtime.connection.on('connected', function() {
         console.log("players published");
         // If score >= 5 close game
       }
-      console.log("thick");
     });
   }, 1000);
 });
