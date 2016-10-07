@@ -3,10 +3,12 @@ version: "2"
 services:
   mongo:
     image: mongo:3.3
-    volumes:
-      - /home/pongo/data:/data/db
+#    volumes:
+#      - /home/pongo/data:/data/db
   node:
     image: pmdcosta/pongo:latest
     env_file: .env
+    volumes:
+      - /home/pongo/pongo-server/index.js:/usr/src/app/index.js
     ports:
       - "80:8080"
