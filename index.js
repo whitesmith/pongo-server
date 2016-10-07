@@ -47,11 +47,12 @@ app.get('/', function (req, res) {
 
 // body name, player_name, lat, lon, area_edges: [{lat:Number, lon:Number}]
 app.post("/create", function(req, res){
+  Game.remove({}, function(){});
   client_rest.auth.requestToken(function(err, tokenDetails) {
     var player = {name: req.body.player_name, points:0, position: {lat: req.body.lat, lon: req.body.lon}, token: tokenDetails.token}
     var data = {name: req.body.name, players:[player], creator: player.name, area_edges: req.body.area_edges }
     var newgame = new Game(data);
-    newgame.started = true;
+    //newgame.started = true;
     newgame.save(function (err) {
       if (err) {
         console.log(err);
