@@ -20,7 +20,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // Set Database and Schemas
 var GameSchema = new mongoose.Schema({
   created_at: {type: Date, default: Date.now},
-  started_at: {type: Date},
+  started: {type: Boolean, default: false},
   closed_at: {type: Date},
   closed: {type: Boolean, default:false},
   creator: {type: String, default:""},
@@ -47,10 +47,11 @@ app.get('/', function (req, res) {
 
 // body name, player_name, lat, lon, area_edges: [{lat:Number, lon:Number}]
 app.post("/create", function(req, res){
-  client.auth.requestToken(function(err, tokenDetails) {
+  client_rest.auth.requestToken(function(err, tokenDetails) {
     var player = {name: req.body.player_name, points:0, position: {lat: req.body.lat, lon: req.body.lon}, token: tokenDetails.token}
     var data = {name: req.body.name, players:[player], creator: player.name, area_edges: req.body.area_edges }
     var newgame = new Game(data);
+    newgame.started = true;
     newgame.save(function (err) {
       if (err) {
         console.log(err);
@@ -64,7 +65,7 @@ app.post("/create", function(req, res){
 // param: id
 // body: name, lat, lon
 app.post("/join/:id", function(req, res){
-  client.auth.requestToken(function(err, tokenDetails) {
+  client_rest.auth.requestToken(function(err, tokenDetails) {
     var data = {name: req.body.name, points:0, position: {lat: req.body.lat, lon: req.body.lon}, token: tokenDetails.token}
     Game.findOne({id:req.params.id}, null, {}, function(err, game) {
       if (err) {
@@ -95,8 +96,17 @@ client_realtime.connection.on('connected', function() {
 
   channel.subscribe("new-location", function(message) {
     console.log('new-location message');
+    var name = message.name;
     var lat = message.lat;
     var lon = message.lon;
+    Game.findOne({closed: false}, null, {}, function(err, game) {
+      for(var i=0; i<game.players.lenght; i++){
+        if (game.players[i].name === name){
+          game.players[i].position = {lat:lat, lon:lon};
+          break;
+        }
+      }
+    });
   });
 
   channel.subscribe("start-game", function(message) {
@@ -113,15 +123,18 @@ client_realtime.connection.on('connected', function() {
 
   //thicks broacast stuff
   var i = setInterval(function(){
-    Game.findOne({closed: false}, null, {}, function(err, game) {
-      if (game && game.started_at != undefined){
+    Game.findOne({started: true}, null, {}, function(err, game) {
+      // console.log(game)
+      // console.log(game.started)
+      if (game && game.started){
         //Ball outside area
         //publish new points an put ball on center with random direction
         //publish last positions
-
-
+        channel.publish('locations', {ball: {}, players:game.players });
+        console.log("players published");
         // If score >= 5 close game
       }
+      console.log("thick");
     });
   }, 1000);
 });
