@@ -109,6 +109,7 @@ client_realtime.connection.on('connected', function() {
             break;
           }
         }
+        game.save(function (err) {});
       }
     });
   });
