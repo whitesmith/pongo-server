@@ -90,8 +90,6 @@ app.post("/join/:id", function(req, res){
 //Ably Stuff
 var client_rest = new ably_rest(process.env.ABLY_KEY);
 var client_realtime = new ably_realtime(process.env.ABLY_KEY);
-client_realtime.url = "http://loadtest-realtime.ably.io";
-client_rest.url = "http://loadtest-rest.ably.io";
 
 client_realtime.connection.on('connected', function() {
   console.log("Connected to ably");
