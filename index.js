@@ -4,7 +4,8 @@ var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var path = require('path');
 var http = require('http');
-var realtime = require('ably').Realtime;
+var ably_realtime = require('ably').Realtime;
+var ably_rest = require('ably').Rest;
 
 var app = express();
 var port = process.env.PORT || '3000';
@@ -23,7 +24,7 @@ var GameSchema = new mongoose.Schema({
   closed_at: {type: Date},
   closed: {type: Boolean, default:false},
   name: {type: String},
-  players: [{name: String, points: Number, position: {lat: Number, lon: Number}}]
+  players: [{name: String, points: Number, position: {lat: Number, lon: Number}, token: String}]
 });
 
 var Game = mongoose.model('Game', GameSchema);
@@ -48,6 +49,7 @@ app.post("/create", function(req, res){
     if (err) {
       console.log(err);
     } else {
+      // TODO
       res.send(newgame);
     }
   });
@@ -64,7 +66,7 @@ app.post("/join/:id", function(req, res){
         if (err) {
           console.log(err);
         } else {
-          //todo
+          // TODO
           res.send("TOKEN");
         }
       });
@@ -74,7 +76,8 @@ app.post("/join/:id", function(req, res){
 
 
 //Ably Stuff
-var client = new realtime(process.env.ABLY_KEY)
+var client_rest = new ably_rest(process.env.ABLY_KEY)
+var client_realtime = new ably_realtime(process.env.ABLY_KEY)
 
 client.connection.on('connected', function() {
   console.log("Connected to ably");
@@ -83,6 +86,9 @@ client.connection.on('connected', function() {
 client.connection.on('failed', function() {
   console.log("Failed to connect to ably");
 });
+
+
+
 
 
 
