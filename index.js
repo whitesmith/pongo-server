@@ -86,22 +86,28 @@ app.post("/join/:id", function(req, res){
 var client_rest = new ably_rest(process.env.ABLY_KEY)
 var client_realtime = new ably_realtime(process.env.ABLY_KEY)
 
-client.connection.on('connected', function() {
+
+
+client_realtime.connection.on('connected', function() {
   console.log("Connected to ably");
+
+  var channel = client_realtime.channels.get('pongo');
+
+  console.log(channel);
+
+  channel.subscribe("new-location", function(message) {
+    message.name // 'greeting'
+    message.data // 'Hello World!'
+  });
+
+  channel.subscribe("start-game", function(message) {
+    message.name // 'greeting'
+    message.data // 'Hello World!'
+  });
 });
 
-client.connection.on('failed', function() {
+client_realtime.connection.on('failed', function() {
   console.log("Failed to connect to ably");
-});
-
-channel.subscribe("new-location", function(message) {
-  message.name // 'greeting'
-  message.data // 'Hello World!'
-});
-
-channel.subscribe("start-game", function(message) {
-  message.name // 'greeting'
-  message.data // 'Hello World!'
 });
 
 // Start Server
