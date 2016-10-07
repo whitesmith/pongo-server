@@ -69,7 +69,7 @@ app.post("/create", function(req, res){
 app.post("/join/:id", function(req, res){
   client_rest.auth.requestToken(function(err, tokenDetails) {
     var data = {name: req.body.name, points:0, position: {lat: req.body.lat, lon: req.body.lon}, token: tokenDetails.token}
-    Game.findOne({id:req.params.id}, null, {}, function(err, game) {
+    Game.findOne({_id:req.params.id}, null, {}, function(err, game) {
       if (err) {
         console.log(err);
       } else {
@@ -78,7 +78,7 @@ app.post("/join/:id", function(req, res){
           if (err) {
             console.log(err);
           } else {
-            res.send(game);
+            res.send({game:game, token: tokenDetails.token});
           }
         });
       }
@@ -101,11 +101,13 @@ client_realtime.connection.on('connected', function() {
     var name = message.name;
     var lat = message.lat;
     var lon = message.lon;
-    Game.findOne({closed: false}, null, {}, function(err, game) {
-      for(var i=0; i<game.players.lenght; i++){
-        if (game.players[i].name === name){
-          game.players[i].position = {lat:lat, lon:lon};
-          break;
+    Game.findOne({}, null, {}, function(err, game) {
+      if(game) {
+        for (var i = 0; i < game.players.lenght; i++) {
+          if (game.players[i].name === name) {
+            game.players[i].position = {lat: lat, lon: lon};
+            break;
+          }
         }
       }
     });
@@ -115,10 +117,15 @@ client_realtime.connection.on('connected', function() {
     console.log('game started message');
     var name = message.name;
     Game.findOne({started: true}, null, {}, function(err, game) {
-      game.started = true;
-      game.area_edges = [{lat:38.704499, lon: -9.178818}, {lat:38.704499, lon: -9.175131}, {lat:38.702620, lon: -9.175131}, {lat:38.702620, lon: -9.178818}];
-      newRound(game);
-      game.save(function (err) {})
+      if (game) {
+        game.started = true;
+        game.area_edges = [{lat: 38.704499, lon: -9.178818}, {lat: 38.704499, lon: -9.175131}, {
+          lat: 38.702620,
+          lon: -9.175131
+        }, {lat: 38.702620, lon: -9.178818}];
+        newRound(game);
+        game.save(function (err) {})
+      }
     });
   });
 
