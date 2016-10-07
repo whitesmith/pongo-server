@@ -25,7 +25,7 @@ var GameSchema = new mongoose.Schema({
   closed: {type: Boolean, default:false},
   creator: {type: String, default:""},
   area_eges: [{lat:Number, lon:Number}],
-  ball_dir: [],
+  ball: {position: {lat: Number, lon: Number}, direction: {lat: Number, lon: Number}},
   name: {type: String},
   players: [{name: String, points: Number, position: {lat: Number, lon: Number}, token: String}]
 });
@@ -112,8 +112,11 @@ client_realtime.connection.on('connected', function() {
 
   channel.subscribe("start-game", function(message) {
     console.log('game started message');
-    var name = message.name
-
+    var name = message.namel;
+    Game.findOne({started: true}, null, {}, function(err, game) {
+      game.started = true
+      game.save(function (err) {})
+    });
     // Set ball and forward information
   });
 
