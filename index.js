@@ -127,16 +127,18 @@ client_realtime.connection.on('connected', function() {
 
   //thicks broacast stuff
   var i = setInterval(function(){
-    Game.findOne({started: true}, null, {}, function(err, game) {
+    Game.findOne({}, null, {}, function(err, game) {
       // console.log(game)
       // console.log(game.started)
-      if (game && game.started){
-        //Ball outside area
-        //publish new points an put ball on center with random direction
-        //publish last positions
+      if (game){
+        if (game.started){
+          //Ball outside area
+          //publish new points an put ball on center with random direction
+          //publish last positions
+          // If score >= 5 close game
+        }
         channel.publish('locations', {ball: {}, players:game.players });
         console.log("players published");
-        // If score >= 5 close game
       }
     });
   }, 1000);
