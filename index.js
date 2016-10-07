@@ -68,7 +68,7 @@ app.post("/create", function(req, res){
 app.post("/join/:id", function(req, res){
   client_rest.auth.requestToken(function(err, tokenDetails) {
     var data = {name: req.body.name, points:0, position: {lat: req.body.lat, lon: req.body.lon}, token: tokenDetails.token}
-    Game.findOne({id:req.params.id}, null, {}, function(err, game) {
+    Game.findOne({_id:req.params.id}, null, {}, function(err, game) {
       if (err) {
         console.log(err);
       } else {
