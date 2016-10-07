@@ -77,7 +77,7 @@ app.post("/join/:id", function(req, res){
           if (err) {
             console.log(err);
           } else {
-            res.send(game);
+            res.send({game:game, token: tokenDetails.token});
           }
         });
       }
