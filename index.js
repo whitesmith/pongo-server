@@ -24,7 +24,7 @@ var GameSchema = new mongoose.Schema({
   closed_at: {type: Date},
   closed: {type: Boolean, default:false},
   creator: {type: String, default:""},
-  area_eges: {topL: Number, topR: Number, botL: Number, botL:Number},
+  area_eges: [{lat:Number, lon:Number}],
   ball_dir: [],
   name: {type: String},
   players: [{name: String, points: Number, position: {lat: Number, lon: Number}, token: String}]
@@ -45,7 +45,7 @@ app.get('/', function (req, res) {
   });
 });
 
-// body name, player_name, lat, lon, area_edges: {topL: Number, topR: Number, botL: Number, botL:Number}
+// body name, player_name, lat, lon, area_edges: [{lat:Number, lon:Number}]
 app.post("/create", function(req, res){
   client.auth.requestToken(function(err, tokenDetails) {
     var player = {name: req.body.player_name, points:0, position: {lat: req.body.lat, lon: req.body.lon}, token: tokenDetails.token}
