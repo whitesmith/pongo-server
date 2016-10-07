@@ -101,10 +101,12 @@ client_realtime.connection.on('connected', function() {
     var lat = message.lat;
     var lon = message.lon;
     Game.findOne({}, null, {}, function(err, game) {
-      for(var i=0; i<game.players.lenght; i++){
-        if (game.players[i].name === name){
-          game.players[i].position = {lat:lat, lon:lon};
-          break;
+      if(game){
+        for(var i=0; i<game.players.lenght; i++){
+          if (game.players[i].name === name){
+            game.players[i].position = {lat:lat, lon:lon};
+            break;
+          }
         }
       }
     });
