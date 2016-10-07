@@ -196,6 +196,6 @@ function newRound(game) {
   game.ball.position.lon = (game.area_edges[0].lon + game.area_edges[2].lon) / 2;
 
   // Ball direction
-  game.ball.direction.lat = ((Math.floor(Math.random() * (10 + 10 + 1)) -10) * 0.000001).toFixed(6);
-  game.ball.direction.lon = ((Math.floor(Math.random() * (10 + 10 + 1)) -10) * 0.000001).toFixed(6);
+  game.ball.direction.lat = ((Math.floor(Math.random() * (10 + 10 + 1)) -10) * 0.0001).toFixed(6);
+  game.ball.direction.lon = ((Math.floor(Math.random() * (10 + 10 + 1)) -10) * 0.0001).toFixed(6);
 }
