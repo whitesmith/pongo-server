@@ -24,7 +24,7 @@ var GameSchema = new mongoose.Schema({
   closed_at: {type: Date},
   closed: {type: Boolean, default:false},
   creator: {type: String, default:""},
-  area_eges: [{lat:Number, lon:Number}],
+  area_edges: [{lat:Number, lon:Number}],
   ball: {position: {lat: Number, lon: Number}, direction: {lat: Number, lon: Number}},
   name: {type: String},
   players: [{name: String, points: Number, position: {lat: Number, lon: Number}, token: String}]
