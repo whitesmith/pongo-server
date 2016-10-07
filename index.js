@@ -24,6 +24,8 @@ var GameSchema = new mongoose.Schema({
   closed_at: {type: Date},
   closed: {type: Boolean, default:false},
   creator: {type: String, default:""},
+  area_eges: {topL: Number, topR: Number, botL: Number, botL:Number},
+  ball_dir: [],
   name: {type: String},
   players: [{name: String, points: Number, position: {lat: Number, lon: Number}, token: String}]
 });
@@ -43,11 +45,11 @@ app.get('/', function (req, res) {
   });
 });
 
-// body name, player_name, lat, lon
+// body name, player_name, lat, lon, area_edges: {topL: Number, topR: Number, botL: Number, botL:Number}
 app.post("/create", function(req, res){
   client.auth.requestToken(function(err, tokenDetails) {
     var player = {name: req.body.player_name, points:0, position: {lat: req.body.lat, lon: req.body.lon}, token: tokenDetails.token}
-    var data = {name: req.body.name, players:[player], creator: player.name}
+    var data = {name: req.body.name, players:[player], creator: player.name, area_edges: req.body.area_edges }
     var newgame = new Game(data);
     newgame.save(function (err) {
       if (err) {
@@ -73,7 +75,7 @@ app.post("/join/:id", function(req, res){
           if (err) {
             console.log(err);
           } else {
-            res.send(data);
+            res.send(game);
           }
         });
       }
@@ -86,24 +88,42 @@ app.post("/join/:id", function(req, res){
 var client_rest = new ably_rest(process.env.ABLY_KEY)
 var client_realtime = new ably_realtime(process.env.ABLY_KEY)
 
-
-
 client_realtime.connection.on('connected', function() {
   console.log("Connected to ably");
 
   var channel = client_realtime.channels.get('pongo');
 
-  console.log(channel);
-
   channel.subscribe("new-location", function(message) {
-    message.name // 'greeting'
-    message.data // 'Hello World!'
+    console.log('new-location message');
+    var lat = message.lat;
+    var lon = message.lon;
   });
 
   channel.subscribe("start-game", function(message) {
-    message.name // 'greeting'
-    message.data // 'Hello World!'
+    console.log('game started message');
+    var name = message.name
+
+    // Set ball and forward information
   });
+
+  channel.subscribe("new-ball-dir", function(message) {
+    console.log('ball changed direction');
+    var name = message.name
+  });
+
+  //thicks broacast stuff
+  var i = setInterval(function(){
+    Game.findOne({closed: false}, null, {}, function(err, game) {
+      if (game && game.started_at != undefined){
+        //Ball outside area
+        //publish new points an put ball on center with random direction
+        //publish last positions
+
+
+        // If score >= 5 close game
+      }
+    });
+  }, 1000);
 });
 
 client_realtime.connection.on('failed', function() {
