@@ -136,25 +136,26 @@ client_realtime.connection.on('connected', function() {
 
   //thicks broacast stuff
   var i = setInterval(function(){
-    Game.findOne({started: true}, null, {}, function(err, game) {
-      if (game && game.started){
-        if(outside(game)) {
-          newRound(game);
-          game.players.forEach(function(entry) {
-            if(entry.name == game.last_player) {
-              entry.points += 1;
-              if (entry.points >= 5) {
-                console.log("Game Over !");
+    Game.findOne({}, null, {}, function(err, game) {
+      if(game){
+        if(game.started){
+          if(outside(game)) {
+            newRound(game);
+            game.players.forEach(function(entry) {
+              if(entry.name == game.last_player) {
+                entry.points += 1;
+                if (entry.points >= 5) {
+                  console.log("Game Over !");
+                }
               }
-            }
-          });
+            });
+          }
+          game.ball.position.lat =+ game.ball.direction.lat;
+          game.ball.position.lon =+ game.ball.direction.lon;
         }
-        game.ball.position.lat =+ game.ball.direction.lat;
-        game.ball.position.lon =+ game.ball.direction.lon;
         channel.publish('locations', {ball: {}, players:game.players });
         console.log("players published");
       }
-      console.log("thick");
     });
   }, 1000);
 });
