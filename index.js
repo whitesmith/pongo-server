@@ -154,7 +154,6 @@ client_realtime.connection.on('connected', function() {
         channel.publish('locations', {ball: {}, players:game.players });
         console.log("players published");
       }
-      console.log("thick");
     });
   }, 1000);
 });
