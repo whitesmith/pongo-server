@@ -164,8 +164,8 @@ client_realtime.connection.on('connected', function() {
               }
             });
           }
-          game.ball.position.lat =+ game.ball.direction.lat;
-          game.ball.position.lon =+ game.ball.direction.lon;
+          game.ball.position.lat += game.ball.direction.lat;
+          game.ball.position.lon += game.ball.direction.lon;
         }
         channel.publish('locations', {ball: game.ball.position, players:game.players });
         console.log("players published");
