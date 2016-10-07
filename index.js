@@ -116,8 +116,10 @@ client_realtime.connection.on('connected', function() {
     console.log('game started message');
     var name = message.namel;
     Game.findOne({started: true}, null, {}, function(err, game) {
-      game.started = true
-      game.save(function (err) {})
+      if (game){
+        game.started = true
+        game.save(function (err) {})
+      }
     });
     // Set ball and forward information
   });
