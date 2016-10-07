@@ -132,6 +132,20 @@ client_realtime.connection.on('connected', function() {
   channel.subscribe("new-ball-dir", function(message) {
     console.log('ball changed direction');
     var name = message.name
+    var dir = {lat: message.lat, lon: message.lon}
+    Game.findOne({}, null, {}, function(err, game) {
+      if (game){
+        game.last_player = name;
+        game.ball_direction = dir
+        game.save(function (err) {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log("direction changed");
+          }
+        });
+      }
+    });
   });
 
   //thicks broacast stuff
