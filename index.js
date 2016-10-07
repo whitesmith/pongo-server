@@ -116,7 +116,7 @@ client_realtime.connection.on('connected', function() {
   channel.subscribe("start-game", function(message) {
     console.log('game started message');
     var name = message.name;
-    Game.findOne({started: true}, null, {}, function(err, game) {
+    Game.findOne({}, null, {}, function(err, game) {
       if (game) {
         game.started = true;
         game.area_edges = [{lat: 38.704499, lon: -9.178818}, {lat: 38.704499, lon: -9.175131}, {
