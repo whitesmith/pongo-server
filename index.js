@@ -23,6 +23,7 @@ var GameSchema = new mongoose.Schema({
   started_at: {type: Date},
   closed_at: {type: Date},
   closed: {type: Boolean, default:false},
+  creator: {type: String, default:""},
   name: {type: String},
   players: [{name: String, points: Number, position: {lat: Number, lon: Number}, token: String}]
 });
@@ -42,36 +43,42 @@ app.get('/', function (req, res) {
   });
 });
 
+// body name, player_name, lat, lon
 app.post("/create", function(req, res){
-  var data = {name: req.body.name}
-  var newgame = new Game(data);
-  newgame.save(function (err) {
-    if (err) {
-      console.log(err);
-    } else {
-      // TODO
-      res.send(newgame);
-    }
+  client.auth.requestToken(function(err, tokenDetails) {
+    var player = {name: req.body.player_name, points:0, position: {lat: req.body.lat, lon: req.body.lon}, token: tokenDetails.token}
+    var data = {name: req.body.name, players:[player], creator: player.name}
+    var newgame = new Game(data);
+    newgame.save(function (err) {
+      if (err) {
+        console.log(err);
+      } else {
+        res.send({game:newgame, token: tokenDetails.token});
+      }
+    });
   });
 });
 
+// param: id
+// body: name, lat, lon
 app.post("/join/:id", function(req, res){
-  var data = {name: req.body.name, points:0, position: {lat: req.body.name, lon: req.body.name}}
-  Game.findOne({id:req.params.id}, null, {}, function(err, game) {
-    if (err) {
-      console.log(err);
-    } else {
-      game.players.push(data)
-      game.save(function (err) {
-        if (err) {
-          console.log(err);
-        } else {
-          // TODO
-          res.send("TOKEN");
-        }
-      });
-    }
-  })
+  client.auth.requestToken(function(err, tokenDetails) {
+    var data = {name: req.body.name, points:0, position: {lat: req.body.lat, lon: req.body.lon}, token: tokenDetails.token}
+    Game.findOne({id:req.params.id}, null, {}, function(err, game) {
+      if (err) {
+        console.log(err);
+      } else {
+        game.players.push(data)
+        game.save(function (err) {
+          if (err) {
+            console.log(err);
+          } else {
+            res.send(data);
+          }
+        });
+      }
+    })
+  });
 });
 
 
@@ -87,10 +94,15 @@ client.connection.on('failed', function() {
   console.log("Failed to connect to ably");
 });
 
+channel.subscribe("new-location", function(message) {
+  message.name // 'greeting'
+  message.data // 'Hello World!'
+});
 
-
-
-
+channel.subscribe("start-game", function(message) {
+  message.name // 'greeting'
+  message.data // 'Hello World!'
+});
 
 // Start Server
 var server = http.createServer(app);
