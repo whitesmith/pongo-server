@@ -100,7 +100,7 @@ client_realtime.connection.on('connected', function() {
     var name = message.name;
     var lat = message.lat;
     var lon = message.lon;
-    Game.findOne({closed: false}, null, {}, function(err, game) {
+    Game.findOne({started: true}, null, {}, function(err, game) {
       for(var i=0; i<game.players.lenght; i++){
         if (game.players[i].name === name){
           game.players[i].position = {lat:lat, lon:lon};
