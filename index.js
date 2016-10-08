@@ -98,12 +98,13 @@ client_realtime.connection.on('connected', function() {
 
   channel.subscribe("new-location", function(message) {
     console.log('new-location message');
-    var name = message.name;
-    var lat = message.lat;
-    var lon = message.lon;
+    var data = JSON.parse(message.data);
+    var name = data.name;
+    var lat = data.lat;
+    var lon = data.lon;
     Game.findOne({}, null, {}, function(err, game) {
       if(game) {
-        for (var i = 0; i < game.players.lenght; i++) {
+        for (var i = 0; i < game.players.length; i++) {
           if (game.players[i].name === name) {
             game.players[i].position = {lat: lat, lon: lon};
             break;
@@ -116,7 +117,8 @@ client_realtime.connection.on('connected', function() {
 
   channel.subscribe("start-game", function(message) {
     console.log('game started message');
-    var name = message.name;
+    var data = JSON.parse(message.data);
+    var name = data.name;
     Game.findOne({}, null, {}, function(err, game) {
       if (game) {
         game.started = true;
@@ -132,8 +134,9 @@ client_realtime.connection.on('connected', function() {
 
   channel.subscribe("new-ball-dir", function(message) {
     console.log('ball changed direction');
-    var name = message.name
-    var dir = {lat: message.lat, lon: message.lon}
+    var data = JSON.parse(message.data);
+    var name = data.name
+    var dir = {lat: data.lat, lon: data.lon}
     Game.findOne({}, null, {}, function(err, game) {
       if (game){
         game.last_player = name;
