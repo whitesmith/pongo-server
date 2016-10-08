@@ -25,10 +25,11 @@ var GameSchema = new mongoose.Schema({
   closed: {type: Boolean, default:false},
   creator: {type: String, default:""},
   area_edges: [{lat:Number, lon:Number}],
-  ball: {position: {lat: Number, lon: Number}, direction: {lat: Number, lon: Number}, speed: Number},
+  ball: {position: {lat: Number, lon: Number}, direction: {lat: Number, lon: Number}, speed: Number, default_speed: Number},
   last_play: {player: String, position: {lat: Number, lon: Number}},
   name: {type: String},
-  players: [{name: String, points: Number, position: {lat: Number, lon: Number}, token: String}]
+  players: [{name: String, points: Number, position: {lat: Number, lon: Number}, token: String}],
+  power: {position: {lat: Number, lon: Number}, display: Boolean, player: String, active: Number, cooldown: Number}
 });
 
 var Game = mongoose.model('Game', GameSchema);
@@ -142,6 +143,11 @@ client_realtime.connection.on('connected', function() {
         game.last_play.player = name;
         game.last_play.position = pos;
         var unit = getDirection(game.ball.position.lat - dir.lat, game.ball.position.lon - dir.lon);
+        if (game.power.player === name) {
+          game.ball.speed = game.ball.default_speed * 2
+        } else {
+          game.ball.speed = game.ball.default_speed
+        }
         game.ball.direction = {lat: -unit[0]*game.ball.speed, lon: -unit[1]*game.ball.speed};
         console.log(">NewDir: " + game.ball.direction);
         game.save(function (err) {
@@ -160,6 +166,7 @@ client_realtime.connection.on('connected', function() {
     Game.findOne({}, null, {}, function(err, game) {
       if(game){
         if(game.started){
+          handlePower(game);
           var side = outside(game);
           if(side != "inside") {
             newRound(game);
@@ -169,13 +176,12 @@ client_realtime.connection.on('connected', function() {
                 if(entry.name === game.last_play.player) {
                   entry.points += 1;
                   if (entry.points >= 5) {
-                    console.log("Game Over !");
+                    console.log("Game Over!");
                   }
                 }
               });
             }
           }
-          console.log(">Current: " + game.ball.direction);
           game.ball.position.lat += game.ball.direction.lat;
           game.ball.position.lon += game.ball.direction.lon;
           game.save(function (err) {})
@@ -208,6 +214,7 @@ function newRound(game) {
   game.ball.position.lat = (game.area_edges[0].lat + game.area_edges[2].lat) / 2;
   game.ball.position.lon = (game.area_edges[0].lon + game.area_edges[2].lon) / 2;
   game.ball.speed = 0.00005;
+  game.ball.default_speed = 0.00005;
 
   // Ball direction
   var x = (Math.floor(Math.random() * (10 + 10 + 1)) -10);
@@ -232,4 +239,42 @@ function validPoint(game, outside) {
 function getDirection(x, y) {
   var mag = Math.sqrt((x*x)+(y*y));
   return [x/mag, y/mag]
+}
+
+function handlePower(game) {
+  var power_cooldown = 30;
+  var power_duration = 10;
+  var power_distance = 10;
+
+  if(game.power.display === true) {
+    game.players.forEach(function(entry) {
+      if(distance(game.power.position.lat, entry.position.lon, game.power.position.lat, game.power.position.lon) < power_distance) {
+        game.power.player = entry.name;
+        game.power.active = Math.round(new Date().getTime()/1000);
+        game.power.display = false;
+      }
+    });
+    return;
+  }
+
+  if(game.power.active > Math.round(new Date().getTime()/1000) + power_duration) {
+    game.power.active = 0;
+    game.power.player = "";
+    game.power.cooldown = Math.round(new Date().getTime()/1000);
+    return;
+  }
+
+  if(game.power.active > 0) {
+    return;
+  }
+
+  if(game.power.cooldown < Math.round(new Date().getTime()/1000) + power_cooldown) {
+    return;
+  }
+
+  game.power.display = true;
+}
+
+function distance(x1, y1, x2, y2) {
+  return Math.sqrt( (x2-=x1)*x2 + (y2-=y1)*y2 );
 }
