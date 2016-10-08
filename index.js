@@ -26,7 +26,7 @@ var GameSchema = new mongoose.Schema({
   creator: {type: String, default:""},
   area_edges: [{lat:Number, lon:Number}],
   ball: {position: {lat: Number, lon: Number}, direction: {lat: Number, lon: Number}},
-  last_player: String,
+  last_play: {player: String, position: {lat: Number, lon: Number}},
   name: {type: String},
   players: [{name: String, points: Number, position: {lat: Number, lon: Number}, token: String}]
 });
@@ -120,10 +120,10 @@ client_realtime.connection.on('connected', function() {
     Game.findOne({}, null, {}, function(err, game) {
       if (game) {
         game.started = true;
-        game.area_edges = [{lat: 38.704499-0.001600, lon: -9.178818-0.001600}, {lat: 38.704499-0.001600, lon: -9.175131-0.001600}, {
-          lat: 38.702620-0.001600,
-          lon: -9.175131-0.001600
-        }, {lat: 38.702620-0.001600, lon: -9.178818-0.001600}];
+        game.area_edges = [{lat: 38.704499-0.001600, lon: -9.178818-0.001600},
+          {lat: 38.704499-0.001600, lon: -9.175131-0.001600},
+          {lat: 38.702620-0.001600, lon: -9.175131-0.001600},
+          {lat: 38.702620-0.001600, lon: -9.178818-0.001600}];
         newRound(game);
         game.save(function (err) {})
       }
@@ -134,11 +134,13 @@ client_realtime.connection.on('connected', function() {
     console.log('ball changed direction');
     var data = JSON.parse(message.data);
     var name = data.name;
-    var dir = {lat: data.lat, lon: data.lon}
+    var pos = {lat: data.lat, lon: data.lon};
+    var dir = {lat: data.lat_dir, lon: data.lon_dir};
     Game.findOne({}, null, {}, function(err, game) {
       if (game){
-        game.last_player = name;
-        game.ball_direction = dir
+        game.last_play.player = name;
+        game.last_play.position = pos;
+        game.ball_direction = dir;
         game.save(function (err) {
           if (err) {
             console.log(err);
@@ -150,21 +152,24 @@ client_realtime.connection.on('connected', function() {
     });
   });
 
-  //thicks broacast stuff
+  //Ticks broadcast stuff
   var i = setInterval(function(){
     Game.findOne({}, null, {}, function(err, game) {
       if(game){
         if(game.started){
-          if(outside(game)) {
+          var outside = outside(game);
+          if(outside != "inside") {
             newRound(game);
-            game.players.forEach(function(entry) {
-              if(entry.name == game.last_player) {
-                entry.points += 1;
-                if (entry.points >= 5) {
-                  console.log("Game Over !");
+            if (game.last_play && validPoint(game, outside)) {
+              game.players.forEach(function(entry) {
+                if(entry.name === game.last_play.player) {
+                  entry.points += 1;
+                  if (entry.points >= 5) {
+                    console.log("Game Over !");
+                  }
                 }
-              }
-            });
+              });
+            }
           }
           game.ball.position.lat += game.ball.direction.lat;
           game.ball.position.lon += game.ball.direction.lon;
@@ -186,10 +191,19 @@ var server = http.createServer(app);
 server.listen(port);
 
 function outside(game) {
-  return (game.ball.position.lat > game.area_edges[0].lat ||
-    game.ball.position.lat < game.area_edges[2].lat ||
-    game.ball.position.lon < game.area_edges[0].lon ||
-    game.ball.position.lon > game.area_edges[2].lon)
+  if (game.ball.position.lat > game.area_edges[0].lat) {
+    return "left";
+  }
+  if (game.ball.position.lat < game.area_edges[2].lat) {
+    return "right";
+  }
+  if (game.ball.position.lon < game.area_edges[0].lon) {
+    return "top";
+  }
+  if (game.ball.position.lon > game.area_edges[2].lon) {
+    return "bot";
+  }
+  return "inside"
 }
 
 function newRound(game) {
@@ -200,4 +214,22 @@ function newRound(game) {
   // Ball direction
   game.ball.direction.lat = ((Math.floor(Math.random() * (10 + 10 + 1)) -10) * 0.000005).toFixed(6);
   game.ball.direction.lon = ((Math.floor(Math.random() * (10 + 10 + 1)) -10) * 0.000005).toFixed(6);
+}
+
+function validPoint(game, outside) {
+  switch(outside) {
+    case "left":
+      return;
+      break;
+    case "reight":
+      return;
+      break;
+    case "top":
+      return;
+      break;
+    case "bot":
+      return;
+      break;
+  }
+
 }
