@@ -161,6 +161,7 @@ client_realtime.connection.on('connected', function() {
           if(side != "inside") {
             newRound(game);
             if (game.last_play && validPoint(game, side)) {
+              console.log("Point Scored by " + game.last_play.player);
               game.players.forEach(function(entry) {
                 if(entry.name === game.last_play.player) {
                   entry.points += 1;
@@ -199,6 +200,7 @@ function outside(game) {
 }
 
 function newRound(game) {
+  console.log("New Round!");
   // Ball position
   game.ball.position.lat = (game.area_edges[0].lat + game.area_edges[2].lat) / 2;
   game.ball.position.lon = (game.area_edges[0].lon + game.area_edges[2].lon) / 2;
