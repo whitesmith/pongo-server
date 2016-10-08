@@ -120,10 +120,10 @@ client_realtime.connection.on('connected', function() {
     Game.findOne({}, null, {}, function(err, game) {
       if (game) {
         game.started = true;
-        game.area_edges = [{lat: 38.704499, lon: -9.178818}, {lat: 38.704499, lon: -9.175131}, {
-          lat: 38.702620,
-          lon: -9.175131
-        }, {lat: 38.702620, lon: -9.178818}];
+        game.area_edges = [{lat: 38.704499-0.001600, lon: -9.178818-0.001600}, {lat: 38.704499-0.001600, lon: -9.175131-0.001600}, {
+          lat: 38.702620-0.001600,
+          lon: -9.175131-0.001600
+        }, {lat: 38.702620-0.001600, lon: -9.178818-0.001600}];
         newRound(game);
         game.save(function (err) {})
       }
