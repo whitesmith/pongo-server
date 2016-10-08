@@ -157,10 +157,10 @@ client_realtime.connection.on('connected', function() {
     Game.findOne({}, null, {}, function(err, game) {
       if(game){
         if(game.started){
-          var outside = outside(game);
-          if(outside != "inside") {
+          var side = outside(game);
+          if(side != "inside") {
             newRound(game);
-            if (game.last_play && validPoint(game, outside)) {
+            if (game.last_play && validPoint(game, side)) {
               game.players.forEach(function(entry) {
                 if(entry.name === game.last_play.player) {
                   entry.points += 1;
