@@ -117,8 +117,6 @@ client_realtime.connection.on('connected', function() {
 
   channel.subscribe("start-game", function(message) {
     console.log('game started message');
-    var data = JSON.parse(message.data);
-    var name = data.name;
     Game.findOne({}, null, {}, function(err, game) {
       if (game) {
         game.started = true;
@@ -135,7 +133,7 @@ client_realtime.connection.on('connected', function() {
   channel.subscribe("new-ball-dir", function(message) {
     console.log('ball changed direction');
     var data = JSON.parse(message.data);
-    var name = data.name
+    var name = data.name;
     var dir = {lat: data.lat, lon: data.lon}
     Game.findOne({}, null, {}, function(err, game) {
       if (game){
