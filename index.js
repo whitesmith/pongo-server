@@ -25,7 +25,7 @@ var GameSchema = new mongoose.Schema({
   closed: {type: Boolean, default:false},
   creator: {type: String, default:""},
   area_edges: [{lat:Number, lon:Number}],
-  ball: {position: {lat: Number, lon: Number}, direction: {lat: Number, lon: Number}},
+  ball: {position: {lat: Number, lon: Number}, direction: {lat: Number, lon: Number}, speed: Number},
   last_play: {player: String, position: {lat: Number, lon: Number}},
   name: {type: String},
   players: [{name: String, points: Number, position: {lat: Number, lon: Number}, token: String}]
@@ -140,7 +140,8 @@ client_realtime.connection.on('connected', function() {
       if (game){
         game.last_play.player = name;
         game.last_play.position = pos;
-        game.ball_direction = dir;
+        var unit = getDirection(dir.lat, dir.lon);
+        game.ball.direction = {lat: unit[0]*game.ball.speed, lon: unit[1]*game.ball.speed};
         game.save(function (err) {
           if (err) {
             console.log(err);
@@ -204,10 +205,15 @@ function newRound(game) {
   // Ball position
   game.ball.position.lat = (game.area_edges[0].lat + game.area_edges[2].lat) / 2;
   game.ball.position.lon = (game.area_edges[0].lon + game.area_edges[2].lon) / 2;
+  game.ball.speed = 0.00005;
 
   // Ball direction
-  game.ball.direction.lat = ((Math.floor(Math.random() * (10 + 10 + 1)) -10) * 0.000005).toFixed(6);
-  game.ball.direction.lon = ((Math.floor(Math.random() * (10 + 10 + 1)) -10) * 0.000005).toFixed(6);
+  var x = (Math.floor(Math.random() * (10 + 10 + 1)) -10);
+  var y = (Math.floor(Math.random() * (10 + 10 + 1)) -10);
+  var unit = getDirection(x, y);
+
+  game.ball.direction.lat = (unit[0] * game.ball.speed);
+  game.ball.direction.lon = (unit[1] * game.ball.speed);
 }
 
 function validPoint(game, outside) {
@@ -218,4 +224,10 @@ function validPoint(game, outside) {
   if (outside === "top" && game.last_play.position.lon > mid_lon) return true;
   if (outside === "bot" && game.last_play.position.lon < mid_lon) return true;
   return false;
+}
+
+
+function getDirection(x, y) {
+  var mag = Math.sqrt((x*x)+(y*y));
+  return [x/mag, y/mag]
 }
