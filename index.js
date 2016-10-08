@@ -191,19 +191,11 @@ var server = http.createServer(app);
 server.listen(port);
 
 function outside(game) {
-  if (game.ball.position.lat > game.area_edges[0].lat) {
-    return "left";
-  }
-  if (game.ball.position.lat < game.area_edges[2].lat) {
-    return "right";
-  }
-  if (game.ball.position.lon < game.area_edges[0].lon) {
-    return "top";
-  }
-  if (game.ball.position.lon > game.area_edges[2].lon) {
-    return "bot";
-  }
-  return "inside"
+  if (game.ball.position.lat > game.area_edges[0].lat) return "left";
+  if (game.ball.position.lat < game.area_edges[2].lat) return "right";
+  if (game.ball.position.lon < game.area_edges[0].lon) return "top";
+  if (game.ball.position.lon > game.area_edges[2].lon) return "bot";
+  return "inside";
 }
 
 function newRound(game) {
@@ -217,19 +209,11 @@ function newRound(game) {
 }
 
 function validPoint(game, outside) {
-  switch(outside) {
-    case "left":
-      return;
-      break;
-    case "reight":
-      return;
-      break;
-    case "top":
-      return;
-      break;
-    case "bot":
-      return;
-      break;
-  }
-
+  var mid_lat = (game.area_edges[0].lat + game.area_edges[2].lat) / 2;
+  var mid_lon = (game.area_edges[0].lon + game.area_edges[2].lon) / 2;
+  if (outside === "left" && game.last_play.position.lat < mid_lat) return true;
+  if (outside === "right" && game.last_play.position.lat > mid_lat) return true;
+  if (outside === "top" && game.last_play.position.lon > mid_lon) return true;
+  if (outside === "bot" && game.last_play.position.lon < mid_lon) return true;
+  return false;
 }
