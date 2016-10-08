@@ -136,7 +136,7 @@ client_realtime.connection.on('connected', function() {
     var name = data.name;
     var pos = {lat: data.lat, lon: data.lon};
     var dir = {lat: data.lat_dir, lon: data.lon_dir};
-    console.log(">Received: " + dir);
+    console.log(dir);
     Game.findOne({}, null, {}, function(err, game) {
       if (game){
         game.last_play.player = name;
