@@ -142,6 +142,7 @@ client_realtime.connection.on('connected', function() {
         game.last_play.position = pos;
         var unit = getDirection(dir.lat, dir.lon);
         game.ball.direction = {lat: unit[0]*game.ball.speed, lon: unit[1]*game.ball.speed};
+        console.log(game.ball.direction);
         game.save(function (err) {
           if (err) {
             console.log(err);
@@ -173,6 +174,7 @@ client_realtime.connection.on('connected', function() {
               });
             }
           }
+          console.log(game.ball.direction);
           game.ball.position.lat += game.ball.direction.lat;
           game.ball.position.lon += game.ball.direction.lon;
           game.save(function (err) {})
